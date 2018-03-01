@@ -100,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements
 
     public void refreshPlacesData() {
 
+        Log.i(TAG, "refreshing data");
         Uri uri = PlaceContract.PlaceEntry.CONTENT_URI;
 
         Cursor data = getContentResolver().query(uri,
@@ -171,6 +172,7 @@ public class MainActivity extends AppCompatActivity implements
      * @param view
      */
     public void onAddPlaceButtonClicked(View view) {
+        Log.i(TAG, "here we go");
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(this, getString(R.string.need_location_permission_message), Toast.LENGTH_LONG).show();
@@ -208,6 +210,7 @@ public class MainActivity extends AppCompatActivity implements
                 return;
             }
 
+            Log.i(TAG, "got result");
             // Extract the place information from the API
             String placeName = place.getName().toString();
             String placeAddress = place.getAddress().toString();
@@ -217,6 +220,7 @@ public class MainActivity extends AppCompatActivity implements
             ContentValues contentValues = new ContentValues();
             contentValues.put(PlaceContract.PlaceEntry.COLUMN_PLACE_ID, placeID);
             getContentResolver().insert(PlaceContract.PlaceEntry.CONTENT_URI, contentValues);
+            refreshPlacesData();
         }
     }
 

@@ -5,6 +5,7 @@ import android.content.Context;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBuffer;
 
@@ -52,5 +53,15 @@ public class Geofencing {
 
             mGeofenceList.add(geofence);
         }
+    }
+
+
+    private GeofencingRequest getGeofencingRequest() {
+        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+        // The bellow line is for instances when the device is inside any of the geofences that we're
+        // .. about to register. the INITIAL_TRIGGER_ENTER means that it'll trigger an entry right away.
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+        builder.addGeofences(mGeofenceList);
+        return builder.build();
     }
 }

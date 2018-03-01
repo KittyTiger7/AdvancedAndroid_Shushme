@@ -2,10 +2,13 @@ package com.example.android.shushme;
 
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBuffer;
 
@@ -16,6 +19,8 @@ import java.util.ArrayList;
  */
 
 public class Geofencing {
+
+    private static final String TAG = Geofencing.class.getSimpleName();
 
     private Context mContext;
     private GoogleApiClient mApiClient;
@@ -31,6 +36,37 @@ public class Geofencing {
         mApiClient = apiClient;
         mGeofenceList = new ArrayList<>();
         mGeofencePendingIntent = null;
+    }
+
+    public void registerAllGeofences() {
+        // Check that Api Client is connected, and that the list has Geofences in it
+        if (mApiClient == null || !mApiClient.isConnected() ||
+                mGeofenceList == null || mGeofenceList.size() == 0) {
+            return;
+        }
+
+        try {
+            LocationServices.getGeofencingClient(mContext).addGeofences(getGeofencingRequest(), mGeofencePendingIntent);
+            // In the line above, I wrote different code than the one in the class, because one of the classes
+            // .. used there was deprecated. For that, I saw something about adding a addOnFailureListener.
+            // ... if ever use this for production, need to check this more thoroughly.
+        } catch (SecurityException securityException) {
+            // Catch exception generated if app doesn't have ACCESS_FINE_LOCATION permission.
+            Log.e(TAG, securityException.getMessage());
+        }
+    }
+
+
+    public void unRegisterAllGeofences() {
+        if (mApiClient == null || !mApiClient.isConnected()) return;
+
+        try {
+            LocationServices.getGeofencingClient(mContext).removeGeofences(mGeofencePendingIntent);
+            // Same comment here as in the message above
+        } catch (SecurityException securityException) {
+            // Catch exception generated if app doesn't have ACCESS_FINE_LOCATION permission.
+            Log.e(TAG, securityException.getMessage());
+        }
     }
 
 
@@ -64,4 +100,19 @@ public class Geofencing {
         builder.addGeofences(mGeofenceList);
         return builder.build();
     }
+
+
+    private PendingIntent getGeofencePendingIntent() {
+        // re-use the pending intent if we already have it
+        if (mGeofencePendingIntent != null) return mGeofencePendingIntent;
+
+        Intent intent = new Intent(mContext, GeofenceBroadcastReceiver.class);
+        mGeofencePendingIntent = PendingIntent.getBroadcast(mContext, 0,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        return mGeofencePendingIntent;
+    }
+
+
+
 }

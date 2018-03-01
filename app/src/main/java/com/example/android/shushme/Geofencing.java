@@ -49,6 +49,8 @@ public class Geofencing {
                     .setCircularRegion(placeLat, placeLong, GEOFENCE_RADIUS)
                     .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
                     .build();
+
+            mGeofenceList.add(geofence);
         }
     }
 }
